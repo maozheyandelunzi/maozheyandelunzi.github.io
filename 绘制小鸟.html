@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body {
+            text-align: center;
+        }
+
+        canvas {
+            border: 1px solid #000;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas height="600" width="800"></canvas>
+    <script>
+
+
+
+
+       
+            var c = document.querySelector("canvas");
+            var ctx = c.getContext("2d");
+
+
+
+        //图片全部加载完创建图片  通过传递一个数组(里面包含图片的名字)
+        function loadImg(arr, callback) {
+            //声明一个对象用来存储创造出来的img
+            var imgList = {};
+            //遍历数组
+            for (var i = 0; i < arr.length; i++) {
+                //用一个变量判断是否加载完
+                var count = 0;
+                //创建图片对象
+                var img = new Image();
+                //指定图片的src 字符串拼接
+                img.src = "../../images/" + arr[i] + ".png";
+                //存储对象
+                imgList[arr[i]] = img;
+                img.onload = function () {
+                    count++;
+                    //如果全部加载完就执行回调函数
+                    if (count >= arr.length) {
+                        //要返回一个对象,通过参数的方式传递出去
+                        callback(imgList);
+                    }
+
+                }
+
+            }
+        }
+        // loadImg(["birds"], function (imgList) {
+        //     console.log(imgList);
+        // })
+
+
+
+        {
+     
+
+
+            //创建图片
+            var birdImg = new Image();
+            //指定src
+            birdImg.src = "../../images/birds.png";
+            //小鸟绘制的位置
+            var cX = 100, cY = 100;
+            //图片加载完后
+            birdImg.onload = function () {
+
+                //小鸟的宽高
+                var birdW = birdImg.width / 3;
+                var birdH = birdImg.height;
+                var birdIndex = 0;
+                //小鸟的速度
+                var birdSpeed = 0;
+                //设置加速度
+                var g = 0.0003;
+                //起始时间
+                var startT = new Date();
+                //结束时间
+                var endT = 0;
+                //设置最大速度和最大角度 起始角度
+                var maxSpeed = 0.45;
+                var maxAngle = 60;
+                var birdAnle = 0;
+                function fly() {
+                    //求出时间差
+                    var endT = new Date();
+
+                    var offsetT = endT - startT;
+                    //重置时间
+                    startT = endT;
+                    //速度计算  vt=v0+gt;  位移计算 s=vt*t+g*g*t/2
+                    birdSpeed = birdSpeed + g * offsetT;
+                    //  console.log(birdSpeed);
+                    //变化的位置计算
+                    var currentS = birdSpeed * offsetT + g * offsetT * offsetT / 2;
+                    //清除上一次画的图
+                    ctx.clearRect(0, 0, c.width, c.height);
+                    //小鸟素材坐标
+                    var birdX = birdIndex * birdImg.width / 3;
+                    //改变小鸟的位置
+                    cY += currentS;
+
+
+                    //小鸟头部角度的变化
+                    var currentA = birdSpeed / maxSpeed * maxAngle;
+                    //如果到最大的角度时将他等于最大的角度
+                    if (currentA >= maxAngle) {
+                        currentA = maxAngle;
+                    }
+                    //下面要旋转图片不影响其他的
+                    ctx.save();
+                    //将坐标的原点放到小鸟的中间
+                    ctx.translate(cX - birdW / 2, cY - birdH / 2);
+                    //旋转小鸟的角度
+                    ctx.rotate(Math.PI / 180 * currentA);
+                    //绘制小鸟  设置小鸟的位置为负的自身的一半
+                    ctx.drawImage(birdImg, birdX, 0, birdW, birdH, -birdW / 2, -birdH / 2, birdW, birdH);
+
+                    ctx.restore();
+                    birdIndex++;
+
+                    if (birdIndex > 2) {
+                        birdIndex = 0;
+                    }
+                    window.requestAnimationFrame(fly);
+                    c.onclick = function () {
+                        birdSpeed = -0.2;
+                    }
+                }
+                fly();
+
+            }
+        }
+
+    </script>
+</body>
+
+</html>
